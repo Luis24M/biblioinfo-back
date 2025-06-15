@@ -6,6 +6,8 @@ import { ensureDbConnected } from './middlewares/ensureDbConnected';
 import morgan from 'morgan';
 
 import authRoutes from './routes/auth.routes';
+import personaRoutes  from './routes/persona.routes';
+
 
 
 const app = express();
@@ -37,6 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 // });
 
 app.use('/auth', authRoutes);
+app.use('/persona', personaRoutes);
 
 
 

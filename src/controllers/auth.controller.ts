@@ -15,12 +15,12 @@ export async function login(req: Request, res: Response) {
 
 
 export async function register(req: Request, res: Response){
-  const { usuario, password } = req.body;
-  if (!usuario || !password) {
+  const { usuario, password, rol } = req.body;
+  if (!usuario || !password || !rol) {
       res.status(400).json({ message: 'Usuario y contraseña son requeridos' });
     }
   try {
-    const newUser = new User({ usuario, password });
+    const newUser = new User({ usuario, password, rol });
     await newUser.save();
     res.status(201).json({ message: 'Usuario registrado exitosamente' });
   } catch (error: any) {
