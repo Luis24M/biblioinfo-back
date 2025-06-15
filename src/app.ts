@@ -10,9 +10,17 @@ import authRoutes from './routes/auth.routes';
 
 const app = express();
 
+const allowedOrigins = ['http://localhost:3000', 'https://books-repo.vercel.app'];
+
 app.use(
   cors({
-    origin: ['*'],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
