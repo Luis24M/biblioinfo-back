@@ -3,6 +3,7 @@ import { Schema, model, Types } from 'mongoose';
 
 const personaSchema = new Schema({
   id_user: { type: Types.ObjectId, ref: 'User', required: true },
+  codigoEstudiante: { type: String, required: true, unique: true },
   nombres: { type: String, required: true },
   apellidos: { type: String, required: true },
   correo: { type: String, required: true },

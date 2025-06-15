@@ -1,6 +1,8 @@
 import { Request,Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { Persona } from '../models/Persona';
+import { User } from '../models/User';
+
 
 export async function getPersonaByUserId(req: AuthRequest, res: Response): Promise<void> {
   const userId = req.userId;
@@ -17,10 +19,9 @@ export async function getPersonaByUserId(req: AuthRequest, res: Response): Promi
   }
 }
 
-
 export async function createPersona(req: Request, res: Response): Promise<void> {
   const {
-    id_user,
+    codigoEstudiante,
     nombres,
     apellidos,
     correo,
@@ -32,14 +33,28 @@ export async function createPersona(req: Request, res: Response): Promise<void> 
   } = req.body;
 
   try {
-    const personaExistente = await Persona.findOne({ id_user });
+    // Buscar usuario por códigoEstudiante, que se guarda como 'usuario'
+    const user = await User.findOne({ usuario: codigoEstudiante });
+    if (!user) {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+      return;
+    }
+
+    const id_user = user._id;
+
+    // Verificar si ya hay una persona con ese id_user o con ese código
+    const personaExistente = await Persona.findOne({ 
+      $or: [{ id_user }, { codigoEstudiante }]
+    });
+
     if (personaExistente) {
-      res.status(400).json({ message: 'Ya existe una persona asociada a ese usuario' });
+      res.status(400).json({ message: 'Ya existe una persona con ese usuario o código' });
       return;
     }
 
     const nuevaPersona = new Persona({
       id_user,
+      codigoEstudiante, // ahora lo guardamos correctamente
       nombres,
       apellidos,
       correo,
@@ -56,3 +71,4 @@ export async function createPersona(req: Request, res: Response): Promise<void> 
     res.status(500).json({ message: 'Error al crear la persona', error });
   }
 }
+
