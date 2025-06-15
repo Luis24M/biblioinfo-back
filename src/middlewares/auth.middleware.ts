@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { errorResponse } from '../utils/apiResponse';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
@@ -9,8 +10,9 @@ export interface AuthRequest extends Request {
 
 export function verifyToken(req: AuthRequest, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
+
   if (!authHeader) {
-    res.status(401).json({ message: 'Token no proporcionado' });
+    res.status(401).json(errorResponse('Token no proporcionado', 401));
     return;
   }
 
@@ -20,8 +22,7 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
     req.userId = decoded.userId;
     next();
-  } catch {
-    res.status(403).json({ message: 'Token inválido o expirado' });
-    return;
+  } catch (err) {
+    res.status(403).json(errorResponse('Token inválido o expirado', 403, err));
   }
 }
