@@ -12,8 +12,8 @@ export interface ISugerencia extends Document {
 
 const SugerenciaSchema = new Schema<ISugerencia>({
   id_libro: { type: Schema.Types.ObjectId, ref: 'Libro', required: true },
-  id_persona: { type: Schema.Types.ObjectId, ref: 'Persona', required: true },
-  comentario_inicial: { type: String, required: true },
+  id_persona: { type: Schema.Types.ObjectId, ref: 'Persona'},
+  comentario_inicial: { type: String },
   estado_sugerencia: { type: Boolean, default: true },
   id_comentario: [{ type: Schema.Types.ObjectId, ref: 'Comentario' }],
   fecha_sugerencia: { type: Date, default: Date.now }
