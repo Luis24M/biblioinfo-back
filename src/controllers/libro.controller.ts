@@ -7,16 +7,11 @@ export const createLibro: RequestHandler = async (req, res) => {
     const data = req.body;
 
     // Función interna para validar campos requeridos
-    const validarLibro = (libro: any) => {
-      if (!libro.id_persona) {
-        throw new Error('El campo id_persona es requerido');
-      }
-    };
+   
 
     // Si es un arreglo de libros
     if (Array.isArray(data)) {
       const librosValidados = data.map((libro) => {
-        validarLibro(libro);
         return new Libro({
           titulo: libro.titulo,
           autor: libro.autor,
@@ -36,7 +31,6 @@ export const createLibro: RequestHandler = async (req, res) => {
       res.status(201).json(successResponse('Libros creados exitosamente', librosGuardados));
     } else {
       // Si es un solo libro
-      validarLibro(data);
 
       const nuevoLibro = new Libro({
         titulo: data.titulo,
