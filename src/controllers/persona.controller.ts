@@ -90,7 +90,7 @@ export async function updatePersona(req: Request, res: Response): Promise<void> 
     correo,
     carrera,
     biografia,
-    rol,
+    rol="estudiante",
     estado
   } = req.body;
 
