@@ -1,19 +1,44 @@
 // controllers/sugerencia.controller.ts
-import { Request, Response } from 'express';
+import { Request, Response, RequestHandler } from 'express';
 import { Sugerencia } from '../models/Sugerencia';
-import { Comentario } from '../models/Comentario';
+import { Libro } from '../models/Libro';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 
-export async function createSugerencia(req: Request, res: Response) {
+export const createSugerencia: RequestHandler = async (req, res) => {
   try {
-    const nueva = new Sugerencia(req.body);
-    await nueva.save();
-    res.status(201).json(successResponse('Sugerencia creada', nueva));
-  } catch (error) {
-    res.status(500).json(errorResponse('Error al crear sugerencia', 500, error));
-  }
-}
+    const { libro, comentario_inicial, id_persona } = req.body;
 
+    if (!libro || !comentario_inicial || !id_persona) {
+      res
+        .status(400)
+        .json(errorResponse('Faltan datos requeridos', 400));
+      return;
+    }
+
+    // 1. Crear el libro
+    const nuevoLibro = new Libro({ ...libro, id_persona });
+    await nuevoLibro.save();
+
+    // 2. Crear la sugerencia con el libro creado
+    const nuevaSugerencia = new Sugerencia({
+      id_libro: nuevoLibro._id,
+      comentario_inicial,
+      id_persona,
+    });
+    await nuevaSugerencia.save();
+
+    res.status(201).json(
+      successResponse('Sugerencia creada con libro incluido', {
+        libro: nuevoLibro,
+        sugerencia: nuevaSugerencia,
+      })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(errorResponse('Error al crear sugerencia con libro', 500, error));
+  }
+};
 export async function getSugerencias(req: Request, res: Response) {
   try {
     const sugerencias = await Sugerencia.find({ estado_sugerencia: true });
@@ -66,4 +91,3 @@ export async function getSugerenciaCompleta(req: Request, res: Response) {
     res.status(500).json(errorResponse('Error al obtener sugerencia completa', 500, error));
   }
 }
-

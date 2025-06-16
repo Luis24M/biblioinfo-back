@@ -25,7 +25,7 @@ const LibroSchema = new Schema<ILibro>({
   ruta_libro: { type: String },
   estado_libro: { type: Boolean, default: true },
   fecha_libro: { type: Date, default: Date.now },
-  id_persona: { type: Schema.Types.ObjectId, ref: 'Persona', required: true } // AÑADIDO
+  id_persona: { type: Schema.Types.ObjectId, ref: 'Persona'} // AÑADIDO
 });
 
 export const Libro = model<ILibro>('Libro', LibroSchema);
