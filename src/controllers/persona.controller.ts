@@ -36,7 +36,6 @@ export async function createPersona(req: Request, res: Response): Promise<void> 
     apellidos,
     correo,
     carrera,
-    rol // viene del body
   } = req.body;
 
   try {
@@ -46,7 +45,7 @@ export async function createPersona(req: Request, res: Response): Promise<void> 
       const newUser = new User({
         usuario: codigoEstudiante,
         password: codigoEstudiante,
-        rol: rol || 'estudiante' // si no envían rol, asigna 'estudiante' por defecto
+        rol: 'estudiante' // si no envían rol, asigna 'estudiante' por defecto
       });
       user = await newUser.save();
     }
