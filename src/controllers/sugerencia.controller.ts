@@ -8,12 +8,12 @@ export const createSugerencia: RequestHandler = async (req, res) => {
   try {
     const { libro, comentario_inicial, id_persona } = req.body;
 
-    if (!libro || !comentario_inicial || !id_persona) {
-      res
-        .status(400)
-        .json(errorResponse('Faltan datos requeridos', 400));
-      return;
-    }
+    // if (!libro || !comentario_inicial || !id_persona) {
+    //   res
+    //     .status(400)
+    //     .json(errorResponse('Faltan datos requeridos', 400));
+    //   return;
+    // }
 
     // 1. Crear el libro
     const nuevoLibro = new Libro({ ...libro, id_persona });
