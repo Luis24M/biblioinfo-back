@@ -7,7 +7,10 @@ import morgan from 'morgan';
 
 import authRoutes from './routes/auth.routes';
 import personaRoutes  from './routes/persona.routes';
-
+import libroRoutes from './routes/libro.routes';
+import sugerenciaRoutes from './routes/sugerencia.routes';
+import comentarioRoutes from './routes/comentario.routes';
+import reporteComentarioRoutes from './routes/reporteComentario.routes';
 
 
 const app = express();
@@ -32,7 +35,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-
+app.use('/libros', libroRoutes);
+app.use('/sugerencias', sugerenciaRoutes);
+app.use('/comentarios', comentarioRoutes);
+app.use('/reportes-comentarios', reporteComentarioRoutes);
 app.use('/auth', authRoutes);
 app.use('/persona', personaRoutes);
 
