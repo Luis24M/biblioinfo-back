@@ -4,42 +4,62 @@ import { successResponse, errorResponse } from '../utils/apiResponse';
 
 export const createLibro: RequestHandler = async (req, res) => {
   try {
-    const {
-      titulo,
-      autor,
-      categoria,
-      año,
-      issbn,
-      sinopsis,
-      imagen_portada,
-      ruta_libro,
-      id_persona
-    } = req.body;
+    const data = req.body;
 
-    if (!id_persona) {
-      res.status(400).json(errorResponse('El campo id_persona es requerido', 400));
-      return;
+    // Función interna para validar campos requeridos
+    const validarLibro = (libro: any) => {
+      if (!libro.id_persona) {
+        throw new Error('El campo id_persona es requerido');
+      }
+    };
+
+    // Si es un arreglo de libros
+    if (Array.isArray(data)) {
+      const librosValidados = data.map((libro) => {
+        validarLibro(libro);
+        return new Libro({
+          titulo: libro.titulo,
+          autor: libro.autor,
+          categoria: libro.categoria,
+          anio: libro.anio,
+          issbn: libro.issbn,
+          sinopsis: libro.sinopsis,
+          imagen_portada: libro.imagen_portada,
+          ruta_libro: libro.ruta_libro,
+          id_persona: libro.id_persona,
+          fecha_libro: libro.fecha_libro,
+          estado_libro: libro.estado_libro
+        });
+      });
+
+      const librosGuardados = await Libro.insertMany(librosValidados);
+      res.status(201).json(successResponse('Libros creados exitosamente', librosGuardados));
+    } else {
+      // Si es un solo libro
+      validarLibro(data);
+
+      const nuevoLibro = new Libro({
+        titulo: data.titulo,
+        autor: data.autor,
+        categoria: data.categoria,
+        anio: data.anio,
+        issbn: data.issbn,
+        sinopsis: data.sinopsis,
+        imagen_portada: data.imagen_portada,
+        ruta_libro: data.ruta_libro,
+        id_persona: data.id_persona,
+        fecha_libro: data.fecha_libro,
+        estado_libro: data.estado_libro
+      });
+
+      const libroGuardado = await nuevoLibro.save();
+      res.status(201).json(successResponse('Libro creado exitosamente', libroGuardado));
     }
-
-    const nuevoLibro = new Libro({
-      titulo,
-      autor,
-      categoria,
-      año,
-      issbn,
-      sinopsis,
-      imagen_portada,
-      ruta_libro,
-      id_persona
-    });
-
-    await nuevoLibro.save();
-
-    res.status(201).json(successResponse('Libro creado exitosamente', nuevoLibro));
-  } catch (error) {
-    res.status(500).json(errorResponse('Error al crear libro', 500, error));
+  } catch (error: any) {
+    res.status(500).json(errorResponse(error.message || 'Error al crear libro', 500, error));
   }
 };
+
 
 export async function getLibros(req: Request, res: Response) {
   try {
