@@ -1,6 +1,6 @@
 // controllers/reporteComentario.controller.ts
 import { Request, Response } from 'express';
-import { ReporteComentario } from '../models/ReporteComentario';
+import { ReporteComentario } from '../models/reporteComentario';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 
 export async function createReporte(req: Request, res: Response) {
