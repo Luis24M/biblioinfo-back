@@ -57,10 +57,50 @@ export const createLibro: RequestHandler = async (req, res) => {
 
 export async function getLibros(req: Request, res: Response) {
   try {
-    const libros = await Libro.find({ estado_libro: true }).populate('id_persona');
+    const libros = await Libro.find({ estado_libro: true }).populate('id_persona').populate('comentarios');
     res.status(200).json(successResponse('Libros obtenidos', libros));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener libros', 500, error));
+  }
+}
+
+// ultimos 3 libros
+export async function getUltimosLibros(req: Request, res: Response) {
+  try {
+    const libros = await Libro.find({ estado_libro: true }).sort({ fecha_libro: -1 }).limit(3).populate('comentarios');
+    res.status(200).json(successResponse('Libros obtenidos', libros));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al obtener libros', 500, error));
+  }
+}
+
+// 3 libros mas comentados
+export async function getLibrosMasComentados(req: Request, res: Response) {
+  try {
+    const libros = await Libro.find({ estado_libro: true }).sort({ comentarios: -1 }).limit(3).populate('comentarios');
+    res.status(200).json(successResponse('Libros obtenidos', libros));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al obtener libros', 500, error));
+  }
+}
+
+// 3 libros con mas estrellas
+export async function getLibrosMasEstrellas(req: Request, res: Response) {
+  try {
+    const libros = await Libro.find({ estado_libro: true }).sort({ estrellas: -1 }).limit(3).populate('comentarios');
+    res.status(200).json(successResponse('Libros obtenidos', libros));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al obtener libros', 500, error));
+  }
+}
+
+export async function getLibro(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const libro = await Libro.findById(id).populate('comentarios');
+    res.status(200).json(successResponse('Libro obtenido', libro));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al obtener libro', 500, error));
   }
 }
 

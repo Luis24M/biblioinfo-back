@@ -11,6 +11,8 @@ export interface ILibro extends Document {
   ruta_libro?: string;
   estado_libro: boolean;
   fecha_libro: Date;
+  comentarios: Types.ObjectId[];
+  estrellas: number;
   id_persona: Types.ObjectId; // Referencia a persona
 }
 
@@ -25,6 +27,8 @@ const LibroSchema = new Schema<ILibro>({
   ruta_libro: { type: String },
   estado_libro: { type: Boolean, default: true },
   fecha_libro: { type: Date, default: Date.now },
+  comentarios: [{ type: Schema.Types.ObjectId, ref: 'Comentario' }],
+  estrellas: { type: Number, default: 0 },
   id_persona: { type: Schema.Types.ObjectId, ref: 'Persona'} // AÑADIDO
 });
 
