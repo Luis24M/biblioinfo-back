@@ -7,7 +7,8 @@ import {
   getLibrosPorPersona,
   getLibrosMasComentados,
   getLibrosMasEstrellas,
-  getUltimosLibros
+  getUltimosLibros,
+  getLibro
 } from '../controllers/libro.controller';
 
 const router = Router();
@@ -18,6 +19,7 @@ router.get('/persona/:id_persona', getLibrosPorPersona);
 router.get('/ultimos', getUltimosLibros); 
 router.get('/mas-comentados', getLibrosMasComentados);
 router.get('/mas-estrellas', getLibrosMasEstrellas);
+router.get('/libro/:id', getLibro);
 router.put('/:id', updateLibro);
 router.delete('/:id', deleteLibro);
 
