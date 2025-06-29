@@ -17,4 +17,9 @@ const ReporteComentarioSchema = new Schema<IReporteComentario>({
   estado_reporte: { type: Boolean, default: true }
 });
 
+// indexes
+ReporteComentarioSchema.index({ id_comentario: 1, id_persona: 1 },
+  { unique: true, name: 'unique_comentario_persona' }
+);
+
 export const ReporteComentario = model<IReporteComentario>('ReporteComentario', ReporteComentarioSchema);

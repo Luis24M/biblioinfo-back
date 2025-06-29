@@ -21,4 +21,9 @@ const ComentarioSchema = new Schema<IComentario>({
   reportado: [{ type: Schema.Types.ObjectId, ref: 'ReporteComentario' }]
 });
 
+// indexes
+ComentarioSchema.index({ id_sugerencia: 1, id_persona: 1 },
+  { unique: true, name: 'unique_sugerencia_persona' }
+);
+
 export const Comentario = model<IComentario>('Comentario', ComentarioSchema);

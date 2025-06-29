@@ -15,4 +15,7 @@ const personaSchema = new Schema({
   estado: {type: Boolean, default: true}
 });
 
+// indexes codigoEstudiante e id_user
+personaSchema.index({ codigoEstudiante: 1, id_user: 1 }, { unique: true, name: 'unique_codigoEstudiante_id_user' });
+
 export const Persona = model('Persona', personaSchema);

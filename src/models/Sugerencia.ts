@@ -19,4 +19,9 @@ const SugerenciaSchema = new Schema<ISugerencia>({
   fecha_sugerencia: { type: Date, default: Date.now }
 });
 
+// indexes
+SugerenciaSchema.index({ id_libro: 1, id_persona: 1 },
+  { unique: true, name: 'unique_libro_persona' }
+);
+
 export const Sugerencia = model<ISugerencia>('Sugerencia', SugerenciaSchema);

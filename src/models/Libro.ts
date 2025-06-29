@@ -1,3 +1,4 @@
+
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface ILibro extends Document {
@@ -31,5 +32,10 @@ const LibroSchema = new Schema<ILibro>({
   estrellas: { type: Number, default: 0 },
   id_persona: { type: Schema.Types.ObjectId, ref: 'Persona'} // AÑADIDO
 });
+
+// indexes
+LibroSchema.index({ titulo: 1, autor: 1, categoria: 1 },
+  { unique: true, name: 'unique_titulo_autor_categoria' }
+);  
 
 export const Libro = model<ILibro>('Libro', LibroSchema);
