@@ -113,6 +113,7 @@ export async function getLibro(req: Request, res: Response) {
         match: { estado_comentario: true }, // Solo comentarios activos
         populate: {
           path: 'id_persona', // Poblar id_persona dentro de cada comentario
+          model: 'Persona',
           select: 'nombres apellidos correo carrera' // Seleccionar solo el campo nombre (ajusta según tu modelo)
         }
       });
