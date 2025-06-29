@@ -2,11 +2,42 @@
 import { Request, Response } from 'express';
 import { Comentario } from '../models/Comentario';
 import { successResponse, errorResponse } from '../utils/apiResponse';
+import { Libro } from '../models/Libro';
 
 export async function createComentario(req: Request, res: Response) {
   try {
-    const nuevo = new Comentario(req.body);
+    const { id_libro, id_persona, contenido_comentario, cantidad_estrellas_comentario } = req.body;
+
+    // Validar que los campos requeridos estén presentes
+    if (!id_libro || !id_persona || !contenido_comentario || !cantidad_estrellas_comentario) {
+      res.status(400).json(errorResponse('Faltan campos requeridos', 400));
+    }
+
+    // Crear el comentario
+    const nuevo = new Comentario({
+      id_libro,
+      id_persona,
+      contenido_comentario,
+      cantidad_estrellas_comentario,
+    });
+
+    // Guardar el comentario
     await nuevo.save();
+
+    // Actualizar el libro para añadir el ID del comentario
+    const libroActualizado = await Libro.findByIdAndUpdate(
+      id_libro,
+      { $push: { comentarios: nuevo._id } },
+      { new: true }
+    );
+
+    // Verificar si el libro existe
+    if (!libroActualizado) {
+      // Opcional: Si el libro no existe, podrías eliminar el comentario para mantener consistencia
+      await Comentario.findByIdAndDelete(nuevo._id);
+      res.status(404).json(errorResponse('Libro no encontrado', 404));
+    }
+
     res.status(201).json(successResponse('Comentario creado', nuevo));
   } catch (error) {
     res.status(500).json(errorResponse('Error al crear comentario', 500, error));
