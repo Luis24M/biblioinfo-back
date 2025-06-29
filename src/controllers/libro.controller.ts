@@ -102,7 +102,10 @@ export async function getLibro(req: Request, res: Response) {
     if (!id) {
       res.status(400).json(errorResponse('ID de libro no válido', 400));
     }
-
+    // nombres: { type: String, required: true },
+    //   apellidos: { type: String, required: true },
+    //   correo: { type: String, required: true },
+    //   carrera: { type: String, required: true },
     // Buscar el libro y poblar los comentarios y la persona asociada
     const libro = await Libro.findById(id)
       .populate({
@@ -110,7 +113,7 @@ export async function getLibro(req: Request, res: Response) {
         match: { estado_comentario: true }, // Solo comentarios activos
         populate: {
           path: 'id_persona', // Poblar id_persona dentro de cada comentario
-          select: 'nombre' // Seleccionar solo el campo nombre (ajusta según tu modelo)
+          select: 'nombres apellidos correo carrera' // Seleccionar solo el campo nombre (ajusta según tu modelo)
         }
       });
 
