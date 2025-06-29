@@ -97,7 +97,27 @@ export async function getLibrosMasEstrellas(req: Request, res: Response) {
 export async function getLibro(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const libro = await Libro.findById(id).populate('comentarios');
+
+    // Validar que el ID sea válido
+    if (!id) {
+      res.status(400).json(errorResponse('ID de libro no válido', 400));
+    }
+
+    // Buscar el libro y poblar los comentarios y la persona asociada
+    const libro = await Libro.findById(id)
+      .populate({
+        path: 'comentarios', // Poblar el array de comentarios
+        match: { estado_comentario: true }, // Solo comentarios activos
+        populate: {
+          path: 'id_persona', // Poblar id_persona dentro de cada comentario
+          select: 'nombre' // Seleccionar solo el campo nombre (ajusta según tu modelo)
+        }
+      });
+
+    if (!libro) {
+      res.status(404).json(errorResponse('Libro no encontrado', 404));
+    }
+
     res.status(200).json(successResponse('Libro obtenido', libro));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener libro', 500, error));
