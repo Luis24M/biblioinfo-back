@@ -56,7 +56,7 @@ export async function getComentarios(req: Request, res: Response) {
 export async function getComentariosPorLibro(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const comentarios = await Comentario.find({ id_libro: id, estado_comentario: true });
+    const comentarios = await Comentario.find({ id_libro: id, estado_comentario: true }).populate('id_persona');
     res.status(200).json(successResponse('Comentarios obtenidos', comentarios));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener comentarios por libro', 500, error));
