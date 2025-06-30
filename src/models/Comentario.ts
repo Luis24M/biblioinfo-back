@@ -1,4 +1,3 @@
-// models/Comentario.ts
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IComentario extends Document {
@@ -18,12 +17,11 @@ const ComentarioSchema = new Schema<IComentario>({
   contenido_comentario: { type: String, required: true },
   fecha_comentario: { type: Date, default: Date.now },
   estado_comentario: { type: Boolean, default: true },
-  reportado: [{ type: Schema.Types.ObjectId, ref: 'ReporteComentario' }]
+  reportado: [{ type: Schema.Types.ObjectId, ref: 'ReporteComentario' }],
 });
 
-// indexes
-ComentarioSchema.index({ id_libro: 1, id_persona: 1 },
-  { unique: true, name: 'unique_libro_persona' }
-);
+// Índices (se eliminó el índice único para permitir múltiples comentarios por usuario por libro)
+ComentarioSchema.index({ id_libro: 1 }); // Índice simple para optimizar búsquedas por libro
+ComentarioSchema.index({ id_persona: 1 }); // Índice simple para optimizar búsquedas por persona
 
 export const Comentario = model<IComentario>('Comentario', ComentarioSchema);
