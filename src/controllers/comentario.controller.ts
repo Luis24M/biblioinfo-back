@@ -13,6 +13,11 @@ export async function createComentario(req: Request, res: Response) {
       res.status(400).json(errorResponse('Faltan campos requeridos', 400));
     }
 
+    // Validar que el ID del libro sea válido
+    if (!id_libro) {
+      res.status(400).json(errorResponse('ID de libro no válido', 400));
+    }
+
     // Crear el comentario
     const nuevo = new Comentario({
       id_libro,
@@ -24,16 +29,26 @@ export async function createComentario(req: Request, res: Response) {
     // Guardar el comentario
     await nuevo.save();
 
-    // Actualizar el libro para añadir el ID del comentario
+    // Obtener todos los comentarios activos del libro (incluyendo el nuevo)
+    const comentarios = await Comentario.find({ id_libro, estado_comentario: true });
+
+    // Calcular el promedio de estrellas
+    const totalEstrellas = comentarios.reduce((sum, comentario) => sum + comentario.cantidad_estrellas_comentario, 0);
+    const promedioEstrellas = comentarios.length > 0 ? totalEstrellas / comentarios.length : 0;
+
+    // Actualizar el libro para añadir el ID del comentario y el promedio de estrellas
     const libroActualizado = await Libro.findByIdAndUpdate(
       id_libro,
-      { $push: { comentarios: nuevo._id } },
+      { 
+        $push: { comentarios: nuevo._id },
+        $set: { estrellas: promedioEstrellas }
+      },
       { new: true }
     );
 
     // Verificar si el libro existe
     if (!libroActualizado) {
-      // Opcional: Si el libro no existe, podrías eliminar el comentario para mantener consistencia
+      // Eliminar el comentario si el libro no existe para mantener consistencia
       await Comentario.findByIdAndDelete(nuevo._id);
       res.status(404).json(errorResponse('Libro no encontrado', 404));
     }
