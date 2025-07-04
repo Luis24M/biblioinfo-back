@@ -68,6 +68,16 @@ export async function getComentarios(req: Request, res: Response) {
   }
 }
 
+export async function getComentariosPorPersona(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const comentarios = await Comentario.find({ id_persona: id, estado_comentario: true }).populate('id_libro');
+    res.status(200).json(successResponse('Comentarios obtenidos', comentarios));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al obtener comentarios por persona', 500, error));
+  }
+}
+
 export async function getComentariosPorLibro(req: Request, res: Response) {
   try {
     const { id } = req.params;
