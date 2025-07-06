@@ -3,6 +3,7 @@ import { Persona } from '../models/Persona';
 import { User } from '../models/User';
 import { Libro } from '../models/Libro';
 import { successResponse, errorResponse } from '../utils/apiResponse';
+import { Types } from 'mongoose';
 
 export async function getPersonaByUserId(req: Request, res: Response): Promise<void> {
   const userId = req.params.userId;
@@ -175,12 +176,18 @@ export async function guardarLibroEnPersona(req: Request, res: Response): Promis
       return;
     }
 
-    if (persona.librosGuardados.includes(id_libro)) {
+    // Comparación segura de strings
+    const libroIdStr = id_libro.toString();
+    const yaGuardado = persona.librosGuardados.some(
+      (libroGuardadoId) => libroGuardadoId.toString() === libroIdStr
+    );
+
+    if (yaGuardado) {
       res.status(400).json(errorResponse('El libro ya está guardado', 400));
       return;
     }
 
-    persona.librosGuardados.push(id_libro);
+    persona.librosGuardados.push(id_libro); // puede ser string, Mongoose lo convierte
     await persona.save();
 
     res.status(200).json(successResponse('Libro guardado correctamente', persona));
@@ -188,6 +195,7 @@ export async function guardarLibroEnPersona(req: Request, res: Response): Promis
     res.status(500).json(errorResponse('Error al guardar el libro', 500, error));
   }
 }
+
 
 export async function getLibrosGuardadosPorPersona(req: Request, res: Response): Promise<void> {
   const { id_persona } = req.params;
