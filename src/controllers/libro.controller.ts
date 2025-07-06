@@ -6,10 +6,6 @@ export const createLibro: RequestHandler = async (req, res) => {
   try {
     const data = req.body;
 
-    // Función interna para validar campos requeridos
-   
-
-    // Si es un arreglo de libros
     if (Array.isArray(data)) {
       const librosValidados = data.map((libro) => {
         return new Libro({
@@ -23,15 +19,14 @@ export const createLibro: RequestHandler = async (req, res) => {
           ruta_libro: libro.ruta_libro,
           id_persona: libro.id_persona,
           fecha_libro: libro.fecha_libro,
-          estado_libro: libro.estado_libro
+          estado_libro: libro.estado_libro,
+          estado_revision: 'pendiente' // NUEVO
         });
       });
 
       const librosGuardados = await Libro.insertMany(librosValidados);
       res.status(201).json(successResponse('Libros creados exitosamente', librosGuardados));
     } else {
-      // Si es un solo libro
-
       const nuevoLibro = new Libro({
         titulo: data.titulo,
         autor: data.autor,
@@ -43,7 +38,8 @@ export const createLibro: RequestHandler = async (req, res) => {
         ruta_libro: data.ruta_libro,
         id_persona: data.id_persona,
         fecha_libro: data.fecha_libro,
-        estado_libro: data.estado_libro
+        estado_libro: data.estado_libro,
+        estado_revision: 'pendiente' // NUEVO
       });
 
       const libroGuardado = await nuevoLibro.save();
@@ -55,14 +51,22 @@ export const createLibro: RequestHandler = async (req, res) => {
 };
 
 
+
 export async function getLibros(req: Request, res: Response) {
   try {
-    const libros = await Libro.find({ estado_libro: true }).populate('id_persona').populate('comentarios');
+    const libros = await Libro.find({
+      estado_libro: true,
+      estado_revision: 'aprobado'
+    })
+      .populate('id_persona')
+      .populate('comentarios');
+
     res.status(200).json(successResponse('Libros obtenidos', libros));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener libros', 500, error));
   }
 }
+
 
 // ultimos 3 libros
 export async function getUltimosLibros(req: Request, res: Response) {
