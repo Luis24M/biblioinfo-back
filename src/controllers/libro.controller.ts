@@ -1,5 +1,6 @@
 import { Request, Response, RequestHandler } from 'express';
-import { Libro } from '../models/Libro';
+import { Libro, ILibro  } from '../models/Libro';
+import { Persona } from '../models/Persona';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 
 export const createLibro: RequestHandler = async (req, res) => {
@@ -98,46 +99,70 @@ export async function getLibrosMasEstrellas(req: Request, res: Response) {
   }
 }
 
-export async function getLibro(req: Request, res: Response) {
+export async function getLibro(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
+    const { id_persona } = req.query;
 
-    // Validar que el ID sea válido
     if (!id) {
       res.status(400).json(errorResponse('ID de libro no válido', 400));
+      return;
     }
-    // nombres: { type: String, required: true },
-    //   apellidos: { type: String, required: true },
-    //   correo: { type: String, required: true },
-    //   carrera: { type: String, required: true },
-    // Buscar el libro y poblar los comentarios y la persona asociada
-    const libro = await Libro.findById(id)
+
+    const libroDoc = await Libro.findById(id)
       .populate({
-        path: 'comentarios', // Poblar el array de comentarios
-        match: { estado_comentario: true }, // Solo comentarios activos
+        path: 'comentarios',
+        match: { estado_comentario: true },
         populate: [
           {
-            path: 'id_persona', // Poblar id_persona dentro de cada comentario
+            path: 'id_persona',
             model: 'Persona',
-            select: 'nombres apellidos correo carrera' // Seleccionar solo el campo nombre (ajusta según tu modelo)
+            select: 'nombres apellidos correo carrera'
           },
           {
-            path: 'respuestas.id_persona', // Poblar id_persona dentro de cada respuesta
+            path: 'respuestas.id_persona',
             model: 'Persona',
-            select: 'nombres apellidos correo carrera' // Seleccionar solo el campo nombre (ajusta según tu modelo)
+            select: 'nombres apellidos correo carrera'
           }
         ]
+      })
+      .populate({
+        path: 'id_persona',
+        model: 'Persona',
+        select: 'nombres apellidos correo carrera'
       });
 
-    if (!libro) {
+    if (!libroDoc) {
       res.status(404).json(errorResponse('Libro no encontrado', 404));
+      return;
     }
 
-    res.status(200).json(successResponse('Libro obtenido', libro));
+    const libro = libroDoc.toObject() as ILibro;
+
+    // Verificar si el libro está guardado por la persona
+    let guardadoPorPersona = false;
+
+    if (id_persona) {
+      const persona = await Persona.findById(id_persona).select('librosGuardados');
+      if (
+        persona &&
+        persona.librosGuardados
+          .map(libroId => libroId.toString())
+          .includes(libro._id.toString())
+      ) {
+        guardadoPorPersona = true;
+      }
+    }
+
+    res.status(200).json(successResponse('Libro obtenido', {
+      ...libro,
+      guardadoPorPersona
+    }));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener libro', 500, error));
   }
 }
+
 
 export async function updateLibro(req: Request, res: Response) {
   try {
