@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Persona } from '../models/Persona';
 import { User } from '../models/User';
+import { Libro } from '../models/Libro';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 
 export async function getPersonaByUserId(req: Request, res: Response): Promise<void> {
@@ -155,5 +156,91 @@ export async function getAllPersonas(req: Request, res: Response): Promise<void>
     res.status(200).json(successResponse('Personas encontradas', personasConUsuario));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener personas', 500, error));
+  }
+}
+
+export async function guardarLibroEnPersona(req: Request, res: Response): Promise<void> {
+  const { id_persona, id_libro } = req.body;
+
+  try {
+    const persona = await Persona.findById(id_persona);
+    if (!persona) {
+      res.status(404).json(errorResponse('Persona no encontrada', 404));
+      return;
+    }
+
+    const libro = await Libro.findById(id_libro);
+    if (!libro) {
+      res.status(404).json(errorResponse('Libro no encontrado', 404));
+      return;
+    }
+
+    if (persona.librosGuardados.includes(id_libro)) {
+      res.status(400).json(errorResponse('El libro ya está guardado', 400));
+      return;
+    }
+
+    persona.librosGuardados.push(id_libro);
+    await persona.save();
+
+    res.status(200).json(successResponse('Libro guardado correctamente', persona));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al guardar el libro', 500, error));
+  }
+}
+
+export async function getLibrosGuardadosPorPersona(req: Request, res: Response): Promise<void> {
+  const { id_persona } = req.params;
+
+  try {
+    const persona = await Persona.findById(id_persona)
+      .populate({
+        path: 'librosGuardados',
+        match: { estado_libro: true, estado_revision: 'aprobado' },
+        populate: {
+          path: 'id_persona', // la persona que subió el libro
+          model: 'Persona',
+          select: 'nombres apellidos correo carrera'
+        }
+      });
+
+    if (!persona) {
+      res.status(404).json(errorResponse('Persona no encontrada', 404));
+      return;
+    }
+
+    // Aquí puedes controlar qué campos mostrar del libro si quisieras
+    const librosGuardados = persona.librosGuardados;
+
+    res.status(200).json(successResponse('Libros guardados obtenidos correctamente', librosGuardados));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al obtener libros guardados', 500, error));
+  }
+}
+
+export async function eliminarLibroGuardado(req: Request, res: Response): Promise<void> {
+  const { id_persona, id_libro } = req.body;
+
+  try {
+    const persona = await Persona.findById(id_persona);
+    if (!persona) {
+      res.status(404).json(errorResponse('Persona no encontrada', 404));
+      return;
+    }
+
+    // Verifica si el libro está guardado
+    const index = persona.librosGuardados.indexOf(id_libro);
+    if (index === -1) {
+      res.status(400).json(errorResponse('El libro no está en la lista de guardados', 400));
+      return;
+    }
+
+    // Quitar el libro
+    persona.librosGuardados.splice(index, 1);
+    await persona.save();
+
+    res.status(200).json(successResponse('Libro eliminado de la lista de guardados', persona));
+  } catch (error) {
+    res.status(500).json(errorResponse('Error al eliminar libro guardado', 500, error));
   }
 }
