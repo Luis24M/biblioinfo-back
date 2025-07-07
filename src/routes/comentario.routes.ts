@@ -19,8 +19,6 @@ router.get('/libro/:id', getComentariosPorLibro);
 router.put('/:id', updateComentario);
 router.delete('/:id', deleteComentario);
 router.post('/reply/:id', addReply);
-
-// ✅ Esta es la ruta que lanza error: asegúrate de que los nombres estén bien y exportes deleteReply como función
-// router.put('/respuesta/:idComentario/:idRespuesta/eliminar', deleteReply);
+router.delete('/comentario/:idComentario/respuesta/:idRespuesta', deleteReply);
 
 export default router;

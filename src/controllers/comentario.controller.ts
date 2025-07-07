@@ -272,34 +272,36 @@ export async function deleteComentario(req: Request<{ id: string }>, res: Respon
   }
 }
 
-export async function deleteReply(req: Request, res: Response): Promise<Response> {
+export async function deleteReply(req: Request, res: Response): Promise<void> {
   try {
     const { idComentario, idRespuesta } = req.params;
 
-    // if (!Types.ObjectId.isValid(idComentario) || !Types.ObjectId.isValid(idRespuesta)) {
-    //   return res.status(400).json(errorResponse('IDs de comentario o respuesta no válidos', 400));
-    // }
+    if (!Types.ObjectId.isValid(idComentario) || !Types.ObjectId.isValid(idRespuesta)) {
+      res.status(400).json(errorResponse('IDs de comentario o respuesta no válidos', 400));
+      return;
+    }
 
     const comentarioActualizado = await Comentario.findOneAndUpdate(
       {
         _id: idComentario,
-        'respuestas._id': idRespuesta
+        'respuestas._id': idRespuesta,
       },
       {
         $set: {
-          'respuestas.$.estado_respuesta': false
-        }
+          'respuestas.$.estado_respuesta': false,
+        },
       },
       { new: true }
     ).populate('respuestas.id_persona', 'nombres apellidos');
 
     if (!comentarioActualizado) {
-      return res.status(404).json(errorResponse('Comentario o respuesta no encontrada', 404));
+      res.status(404).json(errorResponse('Comentario o respuesta no encontrada', 404));
+      return;
     }
 
-    return res.status(200).json(successResponse('Respuesta eliminada lógicamente', comentarioActualizado));
+    res.status(200).json(successResponse('Respuesta eliminada lógicamente', comentarioActualizado));
   } catch (error) {
     console.error('Error al eliminar respuesta:', error);
-    return res.status(500).json(errorResponse('Error al eliminar respuesta', 500, error));
+    res.status(500).json(errorResponse('Error al eliminar respuesta', 500, error));
   }
 }
