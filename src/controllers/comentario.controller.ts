@@ -207,20 +207,32 @@ export async function getComentariosPorLibro(req: Request<{ id: string }>, res: 
   try {
     const { id } = req.params;
     if (!Types.ObjectId.isValid(id)) {
-       res.status(400).json(errorResponse('ID de libro no válido', 400));
+      res.status(400).json(errorResponse('ID de libro no válido', 400));
+      return;
     }
 
+    // Obtener los comentarios
     const comentarios = await Comentario.find({ id_libro: id, estado_comentario: true })
       .populate('id_persona', 'nombres apellidos')
       .populate('id_libro', 'titulo autor categoria anio issbn sinopsis imagen_portada estado_libro fecha_libro comentarios estrellas ruta_libro')
-      .populate('respuestas.id_persona', 'nombres apellidos');
+      .populate('respuestas.id_persona', 'nombres apellidos')
+      .lean(); // importante para poder manipular los objetos luego
 
-     res.status(200).json(successResponse('Comentarios obtenidos', comentarios));
+    // Filtrar respuestas activas
+    const comentariosFiltrados = comentarios.map((comentario) => {
+      return {
+        ...comentario,
+        respuestas: comentario.respuestas.filter((r: any) => r.estado_respuesta === true),
+      };
+    });
+
+    res.status(200).json(successResponse('Comentarios obtenidos', comentariosFiltrados));
   } catch (error) {
     console.error('Error fetching comentarios por libro:', error);
-     res.status(500).json(errorResponse('Error al obtener comentarios por libro', 500, error));
+    res.status(500).json(errorResponse('Error al obtener comentarios por libro', 500, error));
   }
 }
+
 
 export async function updateComentario(req: Request<{ id: string }>, res: Response) {
   try {
