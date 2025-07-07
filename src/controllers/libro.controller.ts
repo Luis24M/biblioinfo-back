@@ -21,7 +21,7 @@ export const createLibro: RequestHandler = async (req, res) => {
           id_persona: libro.id_persona,
           fecha_libro: libro.fecha_libro,
           estado_libro: libro.estado_libro,
-          estado_revision: 'pendiente' // NUEVO
+          estado_revision: 'aprobada' // NUEVO
         });
       });
 
@@ -40,7 +40,7 @@ export const createLibro: RequestHandler = async (req, res) => {
         id_persona: data.id_persona,
         fecha_libro: data.fecha_libro,
         estado_libro: data.estado_libro,
-        estado_revision: 'pendiente' // NUEVO
+        estado_revision: 'aprobada' // NUEVO
       });
 
       const libroGuardado = await nuevoLibro.save();
