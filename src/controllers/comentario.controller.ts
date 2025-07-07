@@ -187,21 +187,33 @@ export async function addReply(req: Request<{ id: string }, {}, AddReplyBody>, r
 export async function getComentariosPorPersona(req: Request<{ id: string }>, res: Response) {
   try {
     const { id } = req.params;
+
     if (!Types.ObjectId.isValid(id)) {
-       res.status(400).json(errorResponse('ID de persona no válido', 400));
+      res.status(400).json(errorResponse('ID de persona no válido', 400));
+      return;
     }
 
     const comentarios = await Comentario.find({ id_persona: id, estado_comentario: true })
       .populate('id_libro', 'titulo autor categoria anio issbn sinopsis imagen_portada estado_libro fecha_libro comentarios estrellas ruta_libro')
       .populate('id_persona', 'nombres apellidos')
-      .populate('respuestas.id_persona', 'nombres apellidos');
+      .populate('respuestas.id_persona', 'nombres apellidos')
+      .lean(); // Para poder modificar el resultado
 
-     res.status(200).json(successResponse('Comentarios obtenidos', comentarios));
+    // Filtrar respuestas inactivas en cada comentario
+    const comentariosFiltrados = comentarios.map(comentario => ({
+      ...comentario,
+      respuestas: comentario.respuestas?.filter(
+        (respuesta: any) => respuesta.estado_respuesta === true
+      )
+    }));
+
+    res.status(200).json(successResponse('Comentarios obtenidos', comentariosFiltrados));
   } catch (error) {
     console.error('Error fetching comentarios por persona:', error);
-     res.status(500).json(errorResponse('Error al obtener comentarios por persona', 500, error));
+    res.status(500).json(errorResponse('Error al obtener comentarios por persona', 500, error));
   }
 }
+
 
 export async function getComentariosPorLibro(req: Request<{ id: string }>, res: Response) {
   try {
