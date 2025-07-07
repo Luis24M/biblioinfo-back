@@ -143,7 +143,7 @@ export async function updatePersona(req: Request, res: Response): Promise<void> 
 
 export async function getAllPersonas(req: Request, res: Response): Promise<void> {
   try {
-    const personas = await Persona.find().lean();
+    const personas = await Persona.find({ estado: true }).lean();
 
     const personasConUsuario = await Promise.all(personas.map(async (persona) => {
       const user = await User.findById(persona.id_user).lean();
@@ -154,11 +154,12 @@ export async function getAllPersonas(req: Request, res: Response): Promise<void>
       };
     }));
 
-    res.status(200).json(successResponse('Personas encontradas', personasConUsuario));
+    res.status(200).json(successResponse('Personas activas encontradas', personasConUsuario));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener personas', 500, error));
   }
 }
+
 
 export async function guardarLibroEnPersona(req: Request, res: Response): Promise<void> {
   const { id_persona, id_libro } = req.body;
