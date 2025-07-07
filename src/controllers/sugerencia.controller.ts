@@ -2,6 +2,7 @@
 import { Request, Response, RequestHandler } from 'express';
 import { Sugerencia } from '../models/Sugerencia';
 import { Libro } from '../models/Libro';
+import { Persona } from '../models/Persona';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 
 export const createSugerencia: RequestHandler = async (req, res) => {
@@ -93,18 +94,27 @@ export async function updateSugerencia(req: Request, res: Response) {
     const { estado_revision } = req.body;
 
     // 1. Actualizar sugerencia
-    const sugerenciaActualizada = await Sugerencia.findByIdAndUpdate(id, req.body, { new: true });
+    const sugerenciaActualizada = await Sugerencia.findByIdAndUpdate(id, req.body, { new: true })
+      .populate('id_persona', 'nombres apellidos correo carrera')
+      .populate('id_libro', 'titulo autor categoria issbn');
 
     if (!sugerenciaActualizada) {
       res.status(404).json(errorResponse('Sugerencia no encontrada', 404));
       return;
     }
 
-    // 2. Si se manda estado_revision como 'aprobada' o 'rechazada', actualizar el libro también
+    // 2. Si estado_revision es 'aprobada' o 'rechazada', actualizar también el libro
     if (estado_revision === 'aprobada' || estado_revision === 'rechazada') {
       await Libro.findByIdAndUpdate(sugerenciaActualizada.id_libro, {
         estado_revision: estado_revision
       });
+
+      // 3. Si fue aprobada, sumar +1 a librosSugeridos de la persona
+      if (estado_revision === 'aprobada') {
+        await Persona.findByIdAndUpdate(sugerenciaActualizada.id_persona, {
+          $inc: { librosSugeridos: 1 }
+        });
+      }
     }
 
     res.status(200).json(successResponse('Sugerencia actualizada', sugerenciaActualizada));
