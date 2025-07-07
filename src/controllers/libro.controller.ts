@@ -57,7 +57,7 @@ export async function getLibros(req: Request, res: Response) {
   try {
     const libros = await Libro.find({
       estado_libro: true,
-      estado_revision: 'aprobado'
+      estado_revision: 'aprobada'
     })
       .populate('id_persona')
       .populate('comentarios');
@@ -74,7 +74,7 @@ export async function getUltimosLibros(req: Request, res: Response) {
   try {
     const libros = await Libro.find({
       estado_libro: true,
-      estado_revision: 'aprobado'
+      estado_revision: 'aprobada'
     })
       .sort({ fecha_libro: -1 })
       .limit(3)
@@ -92,7 +92,7 @@ export async function getLibrosMasComentados(req: Request, res: Response) {
   try {
     const libros = await Libro.find({
       estado_libro: true,
-      estado_revision: 'aprobado'
+      estado_revision: 'aprobada'
     })
       .sort({ comentarios: -1 })
       .limit(3)
@@ -109,7 +109,7 @@ export async function getLibrosMasEstrellas(req: Request, res: Response) {
   try {
     const libros = await Libro.find({
       estado_libro: true,
-      estado_revision: 'aprobado'
+      estado_revision: 'aprobada'
     })
       .sort({ estrellas: -1 })
       .limit(3)
