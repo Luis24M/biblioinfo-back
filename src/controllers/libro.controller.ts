@@ -172,7 +172,7 @@ export async function getLibro(req: Request, res: Response): Promise<void> {
     // Verificar si el libro está guardado por la persona
     let guardadoPorPersona = false;
 
-    if (id_persona) {
+    if (id_persona && id_persona !== 'undefined') {
       const persona = await Persona.findById(id_persona).select('librosGuardados');
       if (
         persona &&
