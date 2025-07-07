@@ -19,7 +19,7 @@ router.get('/persona/:id_persona', getLibrosPorPersona);
 router.get('/ultimos', getUltimosLibros); 
 router.get('/mas-comentados', getLibrosMasComentados);
 router.get('/mas-estrellas', getLibrosMasEstrellas);
-router.get('/libro/:id', getLibro);
+router.get('/libro/:id/id_persona/:id_persona', getLibro);
 router.put('/:id', updateLibro);
 router.delete('/:id', deleteLibro);
 

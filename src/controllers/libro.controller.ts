@@ -124,8 +124,7 @@ export async function getLibrosMasEstrellas(req: Request, res: Response) {
 
 export async function getLibro(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
-    const { id_persona } = req.query;
+    const { id, id_persona } = req.params;
 
     if (!id) {
       res.status(400).json(errorResponse('ID de libro no válido', 400));
