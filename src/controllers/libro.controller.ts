@@ -152,14 +152,22 @@ export async function getLibro(req: Request, res: Response): Promise<void> {
         path: 'id_persona',
         model: 'Persona',
         select: 'nombres apellidos correo carrera'
-      });
+      })
+      .lean(); // necesario para filtrar manualmente
 
     if (!libroDoc) {
       res.status(404).json(errorResponse('Libro no encontrado', 404));
       return;
     }
 
-    const libro = libroDoc.toObject() as ILibro;
+    // Convertir a objeto plano
+    const libro = libroDoc as ILibro;
+
+    // Filtrar las respuestas activas en cada comentario
+    libro.comentarios = (libro.comentarios || []).map((comentario: any) => ({
+      ...comentario,
+      respuestas: (comentario.respuestas || []).filter((r: any) => r.estado_respuesta === true),
+    }));
 
     // Verificar si el libro está guardado por la persona
     let guardadoPorPersona = false;
