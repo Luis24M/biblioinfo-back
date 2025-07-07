@@ -268,3 +268,29 @@ export async function setEstadoRevisionAprobadoTodos(): Promise<void> {
 }
 
 
+export async function desactivarPersona(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+
+    if (!Types.ObjectId.isValid(id)) {
+      res.status(400).json(errorResponse('ID de persona no válido', 400));
+      return;
+    }
+
+    const personaDesactivada = await Persona.findByIdAndUpdate(
+      id,
+      { estado: false },
+      { new: true }
+    );
+
+    if (!personaDesactivada) {
+      res.status(404).json(errorResponse('Persona no encontrada', 404));
+      return;
+    }
+
+    res.status(200).json(successResponse('Persona desactivada correctamente', personaDesactivada));
+  } catch (error) {
+    console.error('Error al desactivar persona:', error);
+    res.status(500).json(errorResponse('Error al desactivar persona', 500, error));
+  }
+}
