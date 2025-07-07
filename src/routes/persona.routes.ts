@@ -6,7 +6,8 @@ import {
   getPersonaByUserId,
   guardarLibroEnPersona,
   getLibrosGuardadosPorPersona,
-  eliminarLibroGuardado
+  eliminarLibroGuardado,
+  fixEstadoRevisionLibrosFaltantes
 } from '../controllers/persona.controller';
 import { verifyToken } from '../middlewares/auth.middleware';
 
@@ -22,5 +23,8 @@ router.get('/allpersonas', verifyToken, getAllPersonas);
 router.post('/guardar-libro', verifyToken, guardarLibroEnPersona);
 router.get('/:id_persona/libros-guardados', verifyToken, getLibrosGuardadosPorPersona);
 router.post('/eliminar-libro-guardado', verifyToken, eliminarLibroGuardado);
+
+
+router.post('/fix-revision', fixEstadoRevisionLibrosFaltantes)
 
 export default router;

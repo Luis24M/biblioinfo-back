@@ -204,7 +204,7 @@ export async function getLibrosGuardadosPorPersona(req: Request, res: Response):
     const persona = await Persona.findById(id_persona)
       .populate({
         path: 'librosGuardados',
-        match: { estado_libro: true, estado_revision: 'aprobado' },
+        match: { estado_libro: true, estado_revision: 'aprobada' },
         populate: {
           path: 'id_persona', // la persona que subió el libro
           model: 'Persona',
@@ -252,3 +252,20 @@ export async function eliminarLibroGuardado(req: Request, res: Response): Promis
     res.status(500).json(errorResponse('Error al eliminar libro guardado', 500, error));
   }
 }
+
+
+
+export async function fixEstadoRevisionLibrosFaltantes(): Promise<void> {
+  try {
+    const result = await Libro.updateMany(
+      { estado_revision: { $exists: false } },
+      { $set: { estado_revision: 'aprobado' } }
+    );
+
+    console.log(`${result.modifiedCount} libros actualizados con estado_revision: 'aprobado'`);
+  } catch (error) {
+    console.error('Error al actualizar libros:', error);
+  }
+}
+
+
