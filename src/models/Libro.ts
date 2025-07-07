@@ -11,7 +11,7 @@ export interface ILibro extends Document {
   imagen_portada?: string;
   ruta_libro?: string;
   estado_libro: boolean;
-  estado_revision: 'pendiente' | 'aprobado' | 'rechazado'; // NUEVO
+  estado_revision: 'pendiente' | 'aprobada' | 'rechazada'; // NUEVO
   fecha_libro: Date;
   comentarios: Types.ObjectId[];
   estrellas: number;
@@ -30,7 +30,7 @@ const LibroSchema = new Schema<ILibro>({
   estado_libro: { type: Boolean, default: true },
   estado_revision: {
     type: String,
-    enum: ['pendiente', 'aprobado', 'rechazado'],
+    enum: ['pendiente', 'aprobada', 'rechazada'],
     default: 'pendiente'
   },
   fecha_libro: { type: Date, default: Date.now },
