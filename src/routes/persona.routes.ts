@@ -7,7 +7,7 @@ import {
   guardarLibroEnPersona,
   getLibrosGuardadosPorPersona,
   eliminarLibroGuardado,
-  fixEstadoRevisionLibrosFaltantes
+  setEstadoRevisionAprobadoTodos
 } from '../controllers/persona.controller';
 import { verifyToken } from '../middlewares/auth.middleware';
 
@@ -25,6 +25,6 @@ router.get('/:id_persona/libros-guardados', verifyToken, getLibrosGuardadosPorPe
 router.post('/eliminar-libro-guardado', verifyToken, eliminarLibroGuardado);
 
 
-router.post('/fix-revision', fixEstadoRevisionLibrosFaltantes)
+router.post('/fix-revision', setEstadoRevisionAprobadoTodos)
 
 export default router;

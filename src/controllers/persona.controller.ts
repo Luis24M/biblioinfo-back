@@ -254,17 +254,16 @@ export async function eliminarLibroGuardado(req: Request, res: Response): Promis
 }
 
 
-
-export async function fixEstadoRevisionLibrosFaltantes(): Promise<void> {
+export async function setEstadoRevisionAprobadoTodos(): Promise<void> {
   try {
     const result = await Libro.updateMany(
-      { estado_revision: { $exists: false } },
-      { $set: { estado_revision: 'aprobado' } }
+      {},
+      { $set: { estado_revision: 'aprobada' } }
     );
 
-    console.log(`${result.modifiedCount} libros actualizados con estado_revision: 'aprobado'`);
+    console.log(`${result.modifiedCount} libros forzadamente marcados como 'aprobado'`);
   } catch (error) {
-    console.error('Error al actualizar libros:', error);
+    console.error('Error al actualizar todos los libros:', error);
   }
 }
 
