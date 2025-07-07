@@ -4,6 +4,7 @@ import { successResponse, errorResponse } from '../utils/apiResponse';
 import { Libro } from '../models/Libro';
 import { Types } from 'mongoose';
 
+
 // Interface for request body validation
 interface CreateComentarioBody {
   id_libro: string;
@@ -268,5 +269,37 @@ export async function deleteComentario(req: Request<{ id: string }>, res: Respon
   } catch (error) {
     console.error('Error deleting comentario:', error);
      res.status(500).json(errorResponse('Error al eliminar comentario', 500, error));
+  }
+}
+
+export async function deleteReply(req: Request, res: Response): Promise<Response> {
+  try {
+    const { idComentario, idRespuesta } = req.params;
+
+    // if (!Types.ObjectId.isValid(idComentario) || !Types.ObjectId.isValid(idRespuesta)) {
+    //   return res.status(400).json(errorResponse('IDs de comentario o respuesta no válidos', 400));
+    // }
+
+    const comentarioActualizado = await Comentario.findOneAndUpdate(
+      {
+        _id: idComentario,
+        'respuestas._id': idRespuesta
+      },
+      {
+        $set: {
+          'respuestas.$.estado_respuesta': false
+        }
+      },
+      { new: true }
+    ).populate('respuestas.id_persona', 'nombres apellidos');
+
+    if (!comentarioActualizado) {
+      return res.status(404).json(errorResponse('Comentario o respuesta no encontrada', 404));
+    }
+
+    return res.status(200).json(successResponse('Respuesta eliminada lógicamente', comentarioActualizado));
+  } catch (error) {
+    console.error('Error al eliminar respuesta:', error);
+    return res.status(500).json(errorResponse('Error al eliminar respuesta', 500, error));
   }
 }

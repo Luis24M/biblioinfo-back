@@ -55,13 +55,35 @@ export const createSugerencia: RequestHandler = async (req, res) => {
 
 export async function getSugerencias(req: Request, res: Response) {
   try {
-    const sugerencias = await Sugerencia.find(); // sin filtros
+    const sugerencias = await Sugerencia.find()
+      .populate({
+        path: 'id_libro',
+        select: 'titulo autor categoria anio issbn sinopsis imagen_portada ruta_libro estado_libro estado_revision fecha_libro',
+        populate: {
+          path: 'id_persona',
+          model: 'Persona',
+          select: 'nombres apellidos correo carrera'
+        }
+      })
+      .populate({
+        path: 'id_persona',
+        select: 'nombres apellidos correo carrera'
+      })
+      .populate({
+        path: 'id_comentario',
+        match: { estado_comentario: true },
+        populate: {
+          path: 'id_persona',
+          select: 'nombres apellidos'
+        }
+      });
 
     res.status(200).json(successResponse('Todas las sugerencias obtenidas', sugerencias));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener sugerencias', 500, error));
   }
 }
+
 
 
 

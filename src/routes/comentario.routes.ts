@@ -6,7 +6,8 @@ import {
   updateComentario,
   deleteComentario,
   getComentariosPorPersona,
-  addReply
+  addReply,
+  deleteReply
 } from '../controllers/comentario.controller';
 
 const router = Router();
@@ -18,5 +19,8 @@ router.get('/libro/:id', getComentariosPorLibro);
 router.put('/:id', updateComentario);
 router.delete('/:id', deleteComentario);
 router.post('/reply/:id', addReply);
+
+// ✅ Esta es la ruta que lanza error: asegúrate de que los nombres estén bien y exportes deleteReply como función
+// router.put('/respuesta/:idComentario/:idRespuesta/eliminar', deleteReply);
 
 export default router;
