@@ -293,7 +293,8 @@ export async function deleteReply(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const comentarioActualizado = await Comentario.findOneAndUpdate(
+    // 1. Marcar la respuesta como inactiva
+    const comentario = await Comentario.findOneAndUpdate(
       {
         _id: idComentario,
         'respuestas._id': idRespuesta,
@@ -304,14 +305,33 @@ export async function deleteReply(req: Request, res: Response): Promise<void> {
         },
       },
       { new: true }
-    ).populate('respuestas.id_persona', 'nombres apellidos');
+    );
 
-    if (!comentarioActualizado) {
+    if (!comentario) {
       res.status(404).json(errorResponse('Comentario o respuesta no encontrada', 404));
       return;
     }
 
-    res.status(200).json(successResponse('Respuesta eliminada lógicamente', comentarioActualizado));
+    // 2. Volver a buscar el comentario con solo respuestas activas
+    const comentarioFiltrado = await Comentario.findById(idComentario)
+      .populate('id_persona', 'nombres apellidos')
+      .populate({
+        path: 'respuestas.id_persona',
+        select: 'nombres apellidos',
+      })
+      .lean();
+
+    if (!comentarioFiltrado) {
+      res.status(404).json(errorResponse('Comentario no encontrado después de actualizar', 404));
+      return;
+    }
+
+    // 3. Filtrar respuestas activas
+    comentarioFiltrado.respuestas = comentarioFiltrado.respuestas?.filter(
+      (respuesta: any) => respuesta.estado_respuesta === true
+    );
+
+    res.status(200).json(successResponse('Respuesta eliminada lógicamente', comentarioFiltrado));
   } catch (error) {
     console.error('Error al eliminar respuesta:', error);
     res.status(500).json(errorResponse('Error al eliminar respuesta', 500, error));
