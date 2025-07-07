@@ -72,17 +72,32 @@ export async function getLibros(req: Request, res: Response) {
 // ultimos 3 libros
 export async function getUltimosLibros(req: Request, res: Response) {
   try {
-    const libros = await Libro.find({ estado_libro: true }).sort({ fecha_libro: -1 }).limit(3).populate('comentarios');
+    const libros = await Libro.find({
+      estado_libro: true,
+      estado_revision: 'aprobado'
+    })
+      .sort({ fecha_libro: -1 })
+      .limit(3)
+      .populate('comentarios');
+
     res.status(200).json(successResponse('Libros obtenidos', libros));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener libros', 500, error));
   }
 }
 
+
 // 3 libros mas comentados
 export async function getLibrosMasComentados(req: Request, res: Response) {
   try {
-    const libros = await Libro.find({ estado_libro: true }).sort({ comentarios: -1 }).limit(3).populate('comentarios');
+    const libros = await Libro.find({
+      estado_libro: true,
+      estado_revision: 'aprobado'
+    })
+      .sort({ comentarios: -1 })
+      .limit(3)
+      .populate('comentarios');
+
     res.status(200).json(successResponse('Libros obtenidos', libros));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener libros', 500, error));
@@ -92,12 +107,20 @@ export async function getLibrosMasComentados(req: Request, res: Response) {
 // 3 libros con mas estrellas
 export async function getLibrosMasEstrellas(req: Request, res: Response) {
   try {
-    const libros = await Libro.find({ estado_libro: true }).sort({ estrellas: -1 }).limit(3).populate('comentarios');
+    const libros = await Libro.find({
+      estado_libro: true,
+      estado_revision: 'aprobado'
+    })
+      .sort({ estrellas: -1 })
+      .limit(3)
+      .populate('comentarios');
+
     res.status(200).json(successResponse('Libros obtenidos', libros));
   } catch (error) {
     res.status(500).json(errorResponse('Error al obtener libros', 500, error));
   }
 }
+
 
 export async function getLibro(req: Request, res: Response): Promise<void> {
   try {
